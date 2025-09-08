@@ -10,11 +10,17 @@
         var xhr=new XMLHttpRequest();
         xhr.open("GET","http://localhost:8080/cricketer/search?q="+z,true);
         xhr.onreadystatechange=function(evt){
+            document.getElementById("resultList").innerHTML="";
             console.log(xhr.readyState);
             if(xhr.readyState === XMLHttpRequest.DONE){ // do when ready & note the comparison ===
                 if (xhr.status ===200) { // The API returns HTTP 200 on success, but it may be 2xx for any other API or even 3xx
                     console.log("Success:", xhr.responseText);
-                    document.getElementById("resultList").innerHTML=xhr.responseText;
+                    var res=xhr.responseText;
+                    var resArr =JSON.parse(res);
+                    for(el in resArr)
+                    {
+                        document.getElementById("resultList").innerHTML+="<li>"+ resArr[el].name+"</li>";
+                    }
                 } else {
                     alert("Error:"+ xhr.status);
                 }
@@ -25,12 +31,64 @@
         };
         xhr.send(null);
     }
+    function formDataToJson(formElement) {
+        const formData = new FormData(formElement);
+        const jsonObject = {};
+
+        formData.forEach((value, key) => {
+            // Handle multiple values (e.g., checkboxes with same name)
+            if (jsonObject.hasOwnProperty(key)) {
+                if (!Array.isArray(jsonObject[key])) {
+                    jsonObject[key] = [jsonObject[key]];
+                }
+                jsonObject[key].push(value);
+            } else {
+                jsonObject[key] = value;
+            }
+        });
+
+        return JSON.stringify(jsonObject);
+    }
+    function  save(z){
+        var reqJson=formDataToJson(z);
+        var xhr=new XMLHttpRequest();
+
+        xhr.open("POST","http://localhost:8080/cricketer/save",true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange=function(evt){
+
+            console.log(xhr.readyState);
+            if(xhr.readyState === XMLHttpRequest.DONE){ // do when ready & note the comparison ===
+                if (xhr.status ===200) { // The API returns HTTP 200 on success, but it may be 2xx for any other API or even 3xx
+                    console.log("Success:", xhr.responseText);
+                    alert("Saved successfully");
+
+
+                } else {
+                    alert("Error:"+ xhr.status);
+                }
+
+
+
+            }
+        };
+        xhr.send(reqJson);
+    return false;
+    }
 </script>
 <body>
 <h1>Search your cricketer</h1>
-<input type="text" placeholder="Name of the cricketer" onkeyup="search(this.value)">
+<input type="text"  onkeyup="search(this.value)">
 <ul id="resultList">
 
 </ul>
+
+<form method="post" >
+    <input type="text" name="name" placeholder="Name of the cricketer">
+    <input type="text" name="country" placeholder="Country">
+    <input type="number" name="runs" placeholder="Runs">
+    <button onclick="return save(this.form)">Save</button>
+
+</form>
 </body>
 </html>
