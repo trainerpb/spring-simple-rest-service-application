@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script>
+
+    function search(z){
+        var xhr=new XMLHttpRequest();
+        xhr.open("GET","http://localhost:8080/cricketer/search?q="+z,true);
+        xhr.onreadystatechange=function(evt){
+            console.log(xhr.readyState);
+            if(xhr.readyState === XMLHttpRequest.DONE){ // do when ready & note the comparison ===
+                if (xhr.status ===200) { // The API returns HTTP 200 on success, but it may be 2xx for any other API or even 3xx
+                    console.log("Success:", xhr.responseText);
+                    document.getElementById("resultList").innerHTML=xhr.responseText;
+                } else {
+                    alert("Error:"+ xhr.status);
+                }
+
+
+            }
+        };
+        xhr.send(null);
+    }
+</script>
+<body>
+<h1>Search your cricketer</h1>
+<input type="text" placeholder="Name of the cricketer" onkeyup="search(this.value)">
+<ul id="resultList">
+
+</ul>
+</body>
+</html>
