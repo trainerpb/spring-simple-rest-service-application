@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>QR Code Generator — Box Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body
+        class="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 antialiased"
+>
+<main class="min-h-screen flex items-center justify-center p-6">
+    <section
+            class="w-full max-w-4xl bg-slate-900 text-slate-100 rounded-2xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-2 gap-6"
+    >
+        <!-- Left Side: Input -->
+        <div class="flex flex-col gap-6">
+            <h1 class="text-xl sm:text-2xl font-semibold">
+                Redirect to an existing web URL
+            </h1>
+            <div class="relative">
+                <input
+                        type="text"
+                        placeholder="Enter URL"
+                        class="w-full rounded-full border border-slate-700 bg-slate-800 p-3 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        oninput="updateQRCode(this.value)"
+                />
+                <span
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                >🔗</span
+                >
+            </div>
+            <p class="ml-3 text-sm text-slate-400">
+                Try something like https://example.com/
+            </p>
+        </div>
+
+        <!-- Right Side: QR Code Box -->
+        <div class="flex flex-col items-center justify-center gap-4">
+            <div
+                    class="bg-white rounded-lg shadow-md p-4 flex items-center justify-center"
+            >
+                <div
+                        class="w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center bg-slate-100 rounded-md"
+                >
+                    <!-- QR Code Placeholder -->
+                    <span id="placeholder" class="text-slate-400 text-sm">QR Code Preview</span>
+                    <img  id="qrCodeImage" class="hidden w-full">
+                </div>
+            </div>
+            <a id="down"  target="_blank"
+                    class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
+            >
+                Download
+            </a>
+        </div>
+    </section>
+</main>
+<script>
+    function updateQRCode(val) {
+        if(val.length % 4 !==0) return; // cosnider hitting API for each 4 chars
+        console.log(val);
+
+        var xhr = new XMLHttpRequest();
+        var url="http://localhost:8080/qr-code/generate?q=" + val;
+        xhr.open("GET", url, true);
+        xhr.responseType = "blob";
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const imageUrl = URL.createObjectURL(xhr.response);
+                document.getElementById("qrCodeImage").src=imageUrl;
+                placeholder.style.display = "none";
+                qrCodeImage.style.display = "block";
+
+                down.href = imageUrl;
+                down.file="QR_"+val.substring(0,3);
+            }
+        };
+        xhr.send();
+    }
+</script>
+</body>
+</html>
